@@ -4,22 +4,21 @@ namespace Ofd\Api\Http;
 
 use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
-
-use function parse_url;
-use function is_string;
-use function ltrim;
-use function preg_replace;
-use function sprintf;
-use function is_object;
 use function get_class;
 use function gettype;
-use function rawurlencode;
-use function preg_replace_callback;
-use function is_numeric;
-use function is_float;
-use function strtolower;
 use function implode;
 use function in_array;
+use function is_float;
+use function is_numeric;
+use function is_object;
+use function is_string;
+use function ltrim;
+use function parse_url;
+use function preg_replace;
+use function preg_replace_callback;
+use function rawurlencode;
+use function sprintf;
+use function strtolower;
 
 final class Uri implements UriInterface
 {
@@ -31,42 +30,42 @@ final class Uri implements UriInterface
 	/**
 	 * @var string
 	 */
-	private $scheme = '';
+	private string $scheme;
 
 	/**
 	 * @var string
 	 */
-	private $userInfo = '';
+	private string $userInfo;
 
 	/**
 	 * @var string
 	 */
-	private $host = '';
+	private string $host;
 
 	/**
 	 * @var int|null
 	 */
-	private $port = null;
+	private ?int $port;
 
 	/**
 	 * @var string
 	 */
-	private $path = '';
+	private string $path;
 
 	/**
 	 * @var string
 	 */
-	private $query = '';
+	private string $query;
 
 	/**
 	 * @var string
 	 */
-	private $fragment = '';
+	private string $fragment;
 
 	/**
 	 * @var string|null
 	 */
-	private $cache;
+	private ?string $cache;
 
 	/**
 	 * Uri constructor.
@@ -104,7 +103,10 @@ final class Uri implements UriInterface
 		return $this->scheme;
 	}
 
-	public function getAuthority()
+	/**
+	 * @return string
+	 */
+	public function getAuthority(): string
 	{
 		if (($authority = $this->host) === '') {
 			return '';
@@ -140,7 +142,7 @@ final class Uri implements UriInterface
 	/**
 	 * @return int|null
 	 */
-	public function getPort()
+	public function getPort(): ?int
 	{
 		return $this->port;
 	}
@@ -469,7 +471,7 @@ final class Uri implements UriInterface
 	{
 		return (string)preg_replace_callback(
 			$pattern,
-			function ($m) {
+			static function ($m) {
 				return rawurlencode($m[0]);
 			},
 			$string,

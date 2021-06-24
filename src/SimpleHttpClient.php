@@ -2,9 +2,9 @@
 
 namespace Ofd\Api;
 
-//use bru\api\Exceptions\HttpClientException;
-//use bru\api\Http\Responce;
-//use bru\api\Http\Stream;
+use Ofd\Api\Exception\HttpClientException;
+use Ofd\Api\Http\Response;
+use Ofd\Api\Http\Stream;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -26,7 +26,9 @@ class SimpleHttpClient implements ClientInterface
 
 		$params_string = $request->getUri()->getQuery();
 
-		if ($method !== 'GET') $params_string = $request->getBody()->getContents();
+		if ($method !== 'GET') {
+			$params_string = $request->getBody()->getContents();
+		}
 
 		if ($method === 'POST') {
 			curl_setopt($c, CURLOPT_URL, $url);
@@ -53,18 +55,18 @@ class SimpleHttpClient implements ClientInterface
 
 		$result = curl_exec($c);
 
-//		$stream = new Stream('php://temp/bruapi/response', 'w+');
-//		$stream->write($result);
+		$stream = new Stream('php://temp/ofd/response', 'w+');
+		$stream->write($result);
 
 		$status_code = curl_getinfo($c, CURLINFO_RESPONSE_CODE);
 
-//		$responce = new Responce();
+		$response = new Response();
 
-//		$responce = $responce->withStatus($status_code);
-//		$responce = $responce->withBody($stream);
+		$response = $response->withStatus($status_code);
+		$response = $response->withBody($stream);
 
 		curl_close($c);
 
-//		return $responce;
+		return $response;
 	}
 }

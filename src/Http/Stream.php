@@ -16,10 +16,10 @@ final class Stream implements StreamInterface
 
 	/**
 	 * Stream constructor.
-	 * @param $stream
+	 * @param string $stream
 	 * @param string $mode
 	 */
-	public function __construct($stream = 'php://temp', string $mode = 'wb+')
+	public function __construct(string $stream = 'php://temp', string $mode = 'wb+')
 	{
 		if (is_string($stream)) {
 			$stream = ($stream === '') ? false : @fopen($stream, $mode);
@@ -243,10 +243,6 @@ final class Stream implements StreamInterface
 			return $metadata;
 		}
 
-		if (array_key_exists($key, $metadata)) {
-			return $metadata[$key];
-		}
-
-		return null;
+		return $metadata[$key] ?? null;
 	}
 }

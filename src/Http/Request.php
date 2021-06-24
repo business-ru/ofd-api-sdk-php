@@ -1,4 +1,5 @@
 <?php
+
 namespace Ofd\Api\Http;
 
 use InvalidArgumentException;
@@ -12,17 +13,17 @@ class Request implements RequestInterface
 	/**
 	 * @var string
 	 */
-	private $method = 'GET';
+	private string $method;
 
 	/**
 	 * @var string|null
 	 */
-	private $requestTarget = null;
+	private ?string $requestTarget = null;
 
 	/**
 	 * @var UriInterface
 	 */
-	private $uri;
+	private UriInterface $uri;
 
 	/**
 	 * Request constructor.
@@ -32,8 +33,13 @@ class Request implements RequestInterface
 	 * @param null $body
 	 * @param string $protocol
 	 */
-	public function __construct(string $method = 'GET', $uri = '', array $headers = [], $body = null, string $protocol = '1.1')
-	{
+	public function __construct(
+		string $method = 'GET',
+		string $uri = '',
+		array $headers = [],
+		$body = null,
+		string $protocol = '1.1'
+	) {
 		$this->method = $method;
 		$this->setUri($uri);
 		$this->registerStream($body);
@@ -60,10 +66,12 @@ class Request implements RequestInterface
 			return;
 		}
 
-		throw new InvalidArgumentException(sprintf(
-											   'Неверный формат URI - "%s". URI должен быть строкой, null либо реализовывать интерфейс "\Psr\Http\Message\UriInterface".',
-											   (is_object($uri) ? get_class($uri) : gettype($uri))
-										   ));
+		throw new InvalidArgumentException(
+			sprintf(
+				'Неверный формат URI - "%s". URI должен быть строкой, null либо реализовывать интерфейс "\Psr\Http\Message\UriInterface".',
+				(is_object($uri) ? get_class($uri) : gettype($uri))
+			)
+		);
 	}
 
 	/**
@@ -89,17 +97,19 @@ class Request implements RequestInterface
 	 * @param mixed $requestTarget
 	 * @return $this|Request
 	 */
-	public function withRequestTarget($requestTarget)
+	public function withRequestTarget($requestTarget): Request
 	{
 		if ($requestTarget === $this->requestTarget) {
 			return $this;
 		}
 
 		if (!is_string($requestTarget) || preg_match('/\s/', $requestTarget)) {
-			throw new InvalidArgumentException(sprintf(
-												   'Неверная цель запроса - "%s". Цель запроса должна быть строкой и не может содержать пробелы',
-												   (is_object($requestTarget) ? get_class($requestTarget) : gettype($requestTarget))
-											   ));
+			throw new InvalidArgumentException(
+				sprintf(
+					'Неверная цель запроса - "%s". Цель запроса должна быть строкой и не может содержать пробелы',
+					(is_object($requestTarget) ? get_class($requestTarget) : gettype($requestTarget))
+				)
+			);
 		}
 
 		$new = clone $this;
@@ -126,10 +136,12 @@ class Request implements RequestInterface
 		}
 
 		if (!is_string($method)) {
-			throw new InvalidArgumentException(sprintf(
-												   'Неверный метод. Метод должен быть строкой, получен - %s.',
-												   (is_object($method) ? get_class($method) : gettype($method))
-											   ));
+			throw new InvalidArgumentException(
+				sprintf(
+					'Неверный метод. Метод должен быть строкой, получен - %s.',
+					(is_object($method) ? get_class($method) : gettype($method))
+				)
+			);
 		}
 
 		$new = clone $this;

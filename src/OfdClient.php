@@ -4,6 +4,7 @@ namespace Ofd\Api;
 
 use JsonException;
 use Ofd\Api\Http\Request;
+use Ofd\Api\Http\Stream;
 use Ofd\Api\Http\Uri;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
@@ -62,7 +63,7 @@ class OfdClient implements LoggerAwareInterface
 	 * @param string $model Модель
 	 * @param string $method Метод (get, post, put, delete)
 	 * @param array $params Параметры
-	 * @return mixed
+	 * @return int|string[]
 	 * @throws JsonException|ClientExceptionInterface
 	 */
 	private function sendRequest(string $method, string $model, array $params = [])
@@ -74,16 +75,15 @@ class OfdClient implements LoggerAwareInterface
 
 		$uri = $uri->withPath('ofdapi/v1/' . $model . '.json');
 
+		$stream = new Stream();
+
 		$request = $request->withRequestTarget('ofdapi/v1/' . $model . '.json');
 		$request = $request->withMethod($method);
 
-		if (isset($params['images'])) {
-			if (is_array($params['images'])) {
-				$params['images'] = json_encode($params['images'], JSON_THROW_ON_ERROR);
-			}
+		if (isset($params['images']) && is_array($params['images'])) {
+			$params['images'] = json_encode($params['images'], JSON_THROW_ON_ERROR);
 		}
 
-		$params['app_id'] = $this->app_id;
 		ksort($params);
 		array_walk_recursive(
 			$params,
@@ -97,7 +97,6 @@ class OfdClient implements LoggerAwareInterface
 
 		$params = [];
 
-		$params_string .= '&' . http_build_query($params);
 
 		if ($method === 'GET') {
 			$uri = $uri->withQuery($params_string);
@@ -110,11 +109,11 @@ class OfdClient implements LoggerAwareInterface
 		$request = $request->withBody($stream);
 		$request = $request->withUri($uri);
 
-		$responce = $this->httpClient->sendRequest($request);
+		$response = $this->httpClient->sendRequest($request);
 
-		$status_code = $responce->getStatusCode();
-		$responce->getBody()->seek(0);
-		$result = $responce->getBody()->getContents();
+		$status_code = $response->getStatusCode();
+		$response->getBody()->seek(0);
+		$result = $response->getBody()->getContents();
 
 		if ($status_code === 200) {
 			$this->log(
