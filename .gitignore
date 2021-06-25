@@ -2,3 +2,4 @@
 /vendor/
 /src/cache/
 composer.lock
+/lsp/
