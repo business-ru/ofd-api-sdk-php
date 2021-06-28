@@ -1,8 +1,9 @@
 <?php
+
 namespace Ofd\Api\Exception;
 
-use Psr\Http\Client\ClientExceptionInterface;
 use Exception;
+use Psr\Http\Client\ClientExceptionInterface;
 
 class HttpClientException extends Exception implements ClientExceptionInterface
 {

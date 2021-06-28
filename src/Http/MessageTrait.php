@@ -11,17 +11,17 @@ trait MessageTrait
 	/**
 	 * @var string[]
 	 */
-	private static $supportedProtocolVersions = ['1.0', '1.1', '2.0', '2'];
+	private static array $supportedProtocolVersions = ['1.0', '1.1', '2.0', '2'];
 
 	/**
 	 * @var array
 	 */
-	private $headers = [];
+	private array $headers = [];
 
 	/**
 	 * @var array
 	 */
-	private $headerNames = [];
+	private array $headerNames = [];
 
 	/**
 	 * @var StreamInterface

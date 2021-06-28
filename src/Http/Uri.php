@@ -15,42 +15,42 @@ final class Uri implements UriInterface
 	/**
 	 * @var string
 	 */
-	private $scheme = '';
+	private string $scheme = '';
 
 	/**
 	 * @var string
 	 */
-	private $userInfo = '';
+	private string $userInfo = '';
 
 	/**
 	 * @var string
 	 */
-	private $host = '';
+	private string $host = '';
 
 	/**
 	 * @var int|null
 	 */
-	private $port = null;
+	private ?int $port = null;
 
 	/**
 	 * @var string
 	 */
-	private $path = '';
+	private string $path = '';
 
 	/**
 	 * @var string
 	 */
-	private $query = '';
+	private string $query = '';
 
 	/**
 	 * @var string
 	 */
-	private $fragment = '';
+	private string $fragment = '';
 
 	/**
 	 * @var string|null
 	 */
-	private $cache;
+	private ?string $cache;
 
 	/**
 	 * Uri constructor.

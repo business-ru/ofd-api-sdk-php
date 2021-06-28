@@ -13,7 +13,7 @@ final class Request implements RequestInterface
 	/**
 	 * @var string
 	 */
-	private string $method = "GET";
+	private string $method;
 
 	/**
 	 * @var string|null
