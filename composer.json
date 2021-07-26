@@ -1,6 +1,6 @@
 {
 	"name": "hotdog666/ofd-api-sdk-php",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "SDK для работы с OFD API",
 	"type": "library",
 	"license": "proprietary",
@@ -14,15 +14,16 @@
 		"php": ">=7.4",
 		"ext-curl": "*",
 		"ext-json": "*",
-		"psr/log": "^1.1",
-		"psr/simple-cache": "^1.0",
-		"psr/http-client": "^1.0"
+		"symfony/http-client": "^5.3",
+		"symfony/http-kernel": "^5.3",
+		"symfony/cache": "^5.3",
+		"symfony/http-foundation": "^5.3.2",
+		"predis/predis": "^1.1"
 	},
 	"autoload": {
 		"psr-4": {
 			"Ofd\\Api\\": "src/",
-			"Ofd\\Api\\Exception\\": "src/Exception",
-			"Ofd\\Api\\Http\\": "src/Http"
+			"Ofd\\Api\\Exception\\": "src/Exception"
 		}
 	}
 }
