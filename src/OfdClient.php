@@ -83,4 +83,24 @@ final class OfdClient
 		#false - убрать throw от Symfony.....
 		return $response->toArray(false);
 	}
+
+	/**
+	 * Метод позволяет выполнить запрос к API OFD
+	 * @param array $params
+	 * @return array
+	 * @throws ClientExceptionInterface
+	 * @throws DecodingExceptionInterface
+	 * @throws RedirectionExceptionInterface
+	 * @throws ServerExceptionInterface
+	 * @throws TransportExceptionInterface
+	 * @throws \JsonException
+	 */
+	public function documents(array $params = []): array
+	{
+		return $this->request(
+			"POST",
+			"documents",
+			$params
+		);
+	}
 }
