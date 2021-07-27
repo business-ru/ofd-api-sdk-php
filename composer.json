@@ -1,6 +1,6 @@
 {
 	"name": "hotdog666/ofd-api-sdk-php",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "SDK для работы с OFD API",
 	"type": "library",
 	"license": "proprietary",
