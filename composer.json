@@ -21,8 +21,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Ofd\\Api\\": "src/",
-			"Ofd\\Api\\Exception\\": "src/Exception"
+			"Ofd\\Api\\": "src/"
 		}
 	}
 }
