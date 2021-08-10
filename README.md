@@ -13,7 +13,7 @@
 ## Установка
 
 ```
-composer require hotdog666/ofd-api-sdk-php
+composer require business-ru/ofd-api-sdk-php
 ```
 
 Документация: https://ofd-ya.ru/docs/API_OFD_YA.pdf
