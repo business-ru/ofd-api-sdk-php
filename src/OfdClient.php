@@ -3,6 +3,7 @@
 namespace Ofd\Api;
 
 use JsonException;
+use Ofd\Api\Adapter\IlluminateOfdApi\Log\Logger;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
@@ -53,7 +54,6 @@ final class OfdClient
      * @param array $params - Параметры
      * @return array
      * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
@@ -68,21 +68,32 @@ final class OfdClient
             strtoupper($method),
             $url,
             [
-                'body' => json_encode($params, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+                'body' => json_encode($params, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
             ]
         );
         #Получаем статус запроса
         $statusCode = $response->getStatusCode();
-        if ($statusCode === 200) {
-            return json_decode(
-                $response->getContent(false),
-                true,
-                512,
-                JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
-            );
+        switch ($statusCode) {
+            case 200:
+            {
+                return json_decode(
+                    $response->getContent(false),
+                    true,
+                    512,
+                    JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
+                );
+            }
+            case 500:
+            {
+                $this->log('critical', "500 Internal Server Error", [$response->getContent(false)]);
+                throw new JsonException("500 Internal Server Error", 500);
+            }
+            default:
+            {
+                $this->log('error', "Ошибка OFD: ", [$response->getContent(false)]);
+                throw new JsonException("Ошибка OFD: ", $response->getStatusCode());
+            }
         }
-        #false - убрать throw от Symfony.....
-        return $response->toArray(false);
     }
 
     /**
@@ -90,7 +101,6 @@ final class OfdClient
      * @param array $params - Параметры запроса, которые передаются в Тело запроса (Request body)
      * @return array
      * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
@@ -103,5 +113,11 @@ final class OfdClient
             "documents",
             $params
         );
+    }
+
+    private function log(string $level, string $message, array $context = []): void
+    {
+        $logger = new Logger();
+        $logger->$level($message, $context);
     }
 }
