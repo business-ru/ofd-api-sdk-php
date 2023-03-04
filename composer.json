@@ -10,17 +10,22 @@
       "email": "a.nikitin@mail.business.ru"
     }
   ],
+  "extra": {
+    "branch-alias": {
+      "dev-main": "1.0.2-dev"
+    }
+  },
   "require": {
-    "php": ">=7.4",
+    "php": "^7.4|^8.1",
     "ext-curl": "*",
     "ext-json": "*",
-    "symfony/http-client": "^5.3",
-    "symfony/http-kernel": "^5.3",
-    "symfony/cache": "^5.3",
-    "symfony/http-foundation": "^5.3.2",
-    "psr/simple-cache": "^1.0",
-    "psr/log": "^1.0",
-    "monolog/monolog": "^2.6"
+    "symfony/http-client": "^v6.2",
+    "symfony/http-kernel": "^v6.2",
+    "symfony/cache": "^v6.2",
+    "symfony/http-foundation": "^v6.2",
+    "psr/simple-cache": "^3.0",
+    "psr/log": "^3.0",
+    "monolog/monolog": "^3.3"
   },
   "autoload": {
     "psr-4": {
