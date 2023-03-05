@@ -85,8 +85,8 @@ final class OfdClient
             }
             case 500:
             {
-                $this->log('critical', "500 Internal Server Error", [$response->getContent(false)]);
-                throw new JsonException("500 Internal Server Error", 500);
+                $this->log('critical', "SDK. 500 Internal Server Error", [$response->getContent(false)]);
+                throw new JsonException("SDK. 500 Internal Server Error", 500);
             }
             default:
             {
