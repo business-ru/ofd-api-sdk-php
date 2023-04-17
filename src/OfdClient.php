@@ -3,14 +3,15 @@
 namespace Ofd\Api;
 
 use JsonException;
-use Ofd\Api\Adapter\IlluminateOfdApi\Log\Logger;
+use Ofd\Api\Adapter\Log\Logger;
+use Symfony\Component\HttpClient\Exception\ServerException;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * Class OfdClient - SDK Ofd API
@@ -21,78 +22,78 @@ final class OfdClient
     private const STATIC_URL = "https://testapi.ofd-ya.ru/ofdapi/v1/";
 
     /**
-     * Предоставляет гибкие методы для синхронного или асинхронного запроса ресурсов HTTP.
-     * @var HttpClientInterface|null
-     */
-    private ?HttpClientInterface $client;
-
-    /**
      * SymfonyHttpClient constructor.
      * Токен в Ofd API бессрочный
      * @param HttpClientInterface|null $client - Symfony Http клиент
      */
-    public function __construct(HttpClientInterface $client = null)
+    public function __construct(private ?HttpClientInterface $client = null, ?string $customToken = null)
     {
         # HttpClient - выбирает транспорт cURL если расширение PHP cURL включено,
         # и возвращается к потокам PHP в противном случае
         # Добавляем в header токен из cache
         $this->client = $client ?? HttpClient::create(
-                [
-                    'http_version' => '2.0',
-                    'headers' => [
-                        'Content-Type' => 'application/json',
-                        'Ofdapitoken' => getenv('OFD_TOKEN')
-                    ]
-                ]
-            );
+            [
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json',
+                    'Ofdapitoken' => $customToken ?? getenv('OFD_TOKEN')
+                ],
+                'http_version' => '2.0'
+            ]
+        );
     }
 
     /**
-     * Общий метод, для любой модели. Позволяет выполнить запрос к OFD API
+     * Отправить HTTP запрос - клиентом
      * @param string $method - Метод
      * @param string $model - Модель
-     * @param array $params - Параметры
-     * @return array
-     * @throws ClientExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
-     * @throws JsonException
+     * @param array $options - Параметры
+     * @return ResponseInterface
      */
-    public function request(string $method, string $model, array $params = []): array
+    private function sendRequest(string $method, string $model, array $options = []): ResponseInterface
     {
-        #Создаем ссылку
+        $method = strtoupper($method);
         $url = self::STATIC_URL . $model;
-        #Отправляем request запрос
-        $response = $this->client->request(
-            strtoupper($method),
-            $url,
-            [
-                'body' => json_encode($params, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
-            ]
-        );
-        #Получаем статус запроса
+
+        return $this->client->request($method, $url, $options);
+    }
+
+    private function post(string $model, array $options): array
+    {
+        $options = [
+            'body' => json_encode($options, JSON_UNESCAPED_UNICODE)
+        ];
+        $response = $this->sendRequest('POST', $model, $options);
+
+        $this->throwStatusCode($response);
+
+        return $response->toArray(false);
+    }
+
+    private function get(string $model, array $options): array
+    {
+        $options = [
+            'query' => $options
+        ];
+        $response = $this->sendRequest('GET', $model, $options);
+
+        $this->throwStatusCode($response);
+
+        return $response->toArray(false);
+    }
+
+    private function throwStatusCode(ResponseInterface $response): void
+    {
         $statusCode = $response->getStatusCode();
         switch ($statusCode) {
             case 200:
-            {
-                return json_decode(
-                    $response->getContent(false),
-                    true,
-                    512,
-                    JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
-                );
-            }
+                return;
             case 500:
-            {
-                $this->log('critical', "SDK. 500 Internal Server Error", [$response->getContent(false)]);
-                throw new JsonException("SDK. 500 Internal Server Error", 500);
-            }
+                $this->log('critical', "SDK. Ошибка OFD Api. 500 Internal Server Error", $response->toArray(false));
+                throw new ServerException($response);
             default:
-            {
-                $this->log('error', "Ошибка OFD: ", [$response->getContent(false)]);
-                throw new JsonException("Ошибка OFD: ", $response->getStatusCode());
-            }
+                $this->log('error', "SDK. Ошибка OFD Api: ", $response->toArray(false));
+                throw new JsonException($response->getContent(false), $statusCode);
         }
     }
 
@@ -108,8 +109,7 @@ final class OfdClient
      */
     public function documents(array $params = []): array
     {
-        return $this->request(
-            "POST",
+        return $this->post(
             "documents",
             $params
         );
